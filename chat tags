@@ -1,0 +1,53 @@
+local GroupID = 123456 -- Replace with actual group ID
+local TextChatService = game:GetService("TextChatService")
+local Players = game:GetService("Players")
+
+local Ranks = { -- Configurable rank table
+	Owner = {
+		Tag = {"Owner"}, Color = Color3.fromRGB(0, 0, 0),
+	},
+	Developer = {
+		Tag = {"Developer"}, Color = Color3.fromRGB(255, 0, 0),
+	},
+	Pro = {
+		Tag = {"Pro"}, Color = Color3.fromRGB(85, 0, 127),
+	},
+	ContentCreator = {
+		Tag = {"Content Creator"}, Color = Color3.fromRGB(85, 0, 255),
+	},
+	Tester = {
+		Tag = {"Tester"}, Color = Color3.fromRGB(85, 255, 255),
+	},
+	VIP = {
+		Tag = {"VIP"}, Color = Color3.fromRGB(255, 170, 0),
+	},
+	["Group Member"] = {
+		Tag = {"Group Member"}, Color = Color3.fromRGB(85, 255, 0),
+	},
+}
+
+TextChatService.OnIncomingMessage = function(Message: TextChatMessage)
+	local Properties = Instance.new("TextChatMessageProperties")
+
+	if Message.TextSource then
+		local Player = Players:GetPlayerByUserId(Message.TextSource.UserId)
+
+		if Player then
+			local Rank = Player:GetRoleInGroupAsync(GroupID)
+			local RankData = Ranks[Rank]
+
+			if RankData then
+				local R = math.floor(RankData.Color.R * 255)
+				local G = math.floor(RankData.Color.G * 255)
+				local B = math.floor(RankData.Color.B * 255)
+
+				Properties.PrefixText =
+					"<font color='rgb("..R..","..G..","..B..")'>[" ..
+					table.concat(RankData.Tag, " ") ..
+					"]</font> " .. Message.PrefixText
+			end
+		end
+	end
+
+	return Properties
+end
